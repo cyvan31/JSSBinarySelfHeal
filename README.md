@@ -40,31 +40,22 @@ com.management.selfheal.plist: /Library/LaunchDaemons
 
 Lets open Composer and perform the following tasks please:
 
-- Click New
-- Select User Environment
-- Click on Dashboard
-- Click Next
-- Type in administrator password when prompted
-- Right click on “Dashboard” under “Sources” and rename this package to SelfHeal
-- On the right pane, right click on the “Users” folder and delete it
-- Navigate to /Library/LaunchDaemons/ and drag "com.managementcheck.it.plist" into the right pane of Composer
-- Expand all of the folders until we see “com.managementcheck.it.plist" and click on it.  Change the owner of this file to "ROOT" and the group to "WHEEL"
-- Leave the permissions at the default
-- Navigate to /Library/Scripts/ and drag “SelfHeal.sh" into the right pane of Composer
-- Expand all of the folders until wee “SelfHeal.sh” and click on it.  Change the owner of this file to “ROOT” and the group to “WHEEL"
-- Set the permissions for this file to 744
-- Click build as DMG
-- Select our save location
-- Add the DMG to Casper Admin
-
-We can now create a policy to push out our DMG to end users.  Our policy should look like this:
-
-- General payload filled out setting our trigger, execution frequency and the name of our policy
-- Add our DMG from above to install our LaunchDaemon and Script on the client
-- Click on the “Files and Process” payload and click edit
-- Scroll all the way down on the right pane and type the following under “Execute Command"
-    - launchctl load /Library/LaunchDaemons/com.managementcheck.it.plist
-- Scope the policy to our end users
+1. Click New
+2. Select User Environment
+3. Click on Dashboard
+4. Click Next
+5. Type in administrator password when prompted
+6. Right click on “Dashboard” under “Sources” and rename this package to SelfHeal
+7. On the right pane, right click on the “Users” folder and delete it
+8. Navigate to /Library/LaunchDaemons/ and drag "com.managementcheck.it.plist" into the right pane of Composer
+9. Expand all of the folders until we see “com.managementcheck.it.plist" and click on it.  Change the owner of this file to "ROOT" and the group to "WHEEL"
+10. Leave the permissions at the default
+11. Navigate to /Library/Scripts/ and drag “SelfHeal.sh" into the right pane of Composer
+12. Expand all of the folders until wee “SelfHeal.sh” and click on it.  Change the owner of this file to “ROOT” and the group to “WHEEL"
+13. Set the permissions for this file to 744
+14. Click build as DMG
+15. Select our save location
+16. Add the DMG to Casper Admin
 
 We will also need to create an additional policy that our Self Heal will verify the client can run
 
@@ -72,7 +63,35 @@ We will also need to create an additional policy that our Self Heal will verify 
 2. Click on "Computer Management"
 3. Click the "Scripts" payload
 4. Click "New"
-5. Type in a display name for this script; somethign like SelfHeal
+5. Type in a display name for this script; something like SelfHeal
+6. Click on the "Script" payload
+7. Create a script that looks like this: 
+    a. #!/bin/sh
+
+       echo "heal"
+8. Save this script
+9. Click "Computers"
+10. Click "Policies"
+11. Create a New policy
+12. Give this policy a display name
+13. Assign this policy a category
+14. Check the Custom Trigger box
+    a. Name the Custom Event heal
+15. Set our execution frequency to "Ongoing"
+16. Click the "Scripts" paylod
+17. Click on "Configure"
+18. Choose our Script we just created
+19. Scope this policy to all computers
+20. Save the policy
+
+We can now create a policy to push out our DMG to end users.  Our policy should look like this:
+
+1. General payload filled out setting our trigger, execution frequency and the name of our policy
+2. Add our DMG from above to install our LaunchDaemon and Script on the client
+3. Click on the “Files and Process” payload and click edit
+4. Scroll all the way down on the right pane and type the following under “Execute Command"
+    a. launchctl load /Library/LaunchDaemons/com.managementcheck.it.plist
+5. Scope the policy to our end users
 
 We now have a SelfHeal solution in place that will help keep our clients communicating with the JSS. The script that we designed will go through a serious of checks, if any of the checks fail, a patch is performed and the script exits.  There is logging for this process that can be found on the client at the following location:
 
@@ -90,3 +109,5 @@ If we wish to have transparency of the log from the JSS, we can download enrollL
 CAVEATS:
 
 Each time the JSS is upgraded, we will need to create a new quickadd package.  We will want to create it the same way we did above and place it in the same directory as we did above.  When we make the new quickadd package, we will want to also update the invitation variable in the SelfHeal.sh.  We can then package up a new SelfHeal.sh with this update and push that out to the clients.  The script will overwrite the existing one in /Library/Scripts.
+
+We can make a DMG using Composer that will lay down the SelfHeal.sh in /Library/Scripts.  Set the same ownership (root:wheel) and permissions 755 before building the DMG.
